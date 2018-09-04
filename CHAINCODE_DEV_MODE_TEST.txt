@@ -1,0 +1,34 @@
+# 1. Copy the chaincode files/folder under the following path
+cd /opt/go/src/github.com/hyperledger/fabric/fabric-samples/chaincode/chaincode-testing/
+cp -r 02_composite_asset /opt/go/src/github.com/hyperledger/fabric/fabric-samples/chaincode/chaincode-testing/.
+
+# 2. Open a new terminal -1 and execute this command , which would start the necessary containers
+cd /opt/go/src/github.com/hyperledger/fabric/fabric-samples/chaincode-docker-devmode
+docker-compose -f docker-compose-simple.yaml up
+
+
+# 3. Open a new terminal -2 and execute this command
+docker exec -it chaincode bash
+cd /opt/gopath/src/chaincode/chaincode-testing/02_composite_asset
+CORE_PEER_ADDRESS=peer:7052
+CORE_CHAINCODE_ID_NAME=batch:0 ./batch_chain
+
+
+# 4. Open a new terminal -3 and execute this command
+docker exec -it cli bash
+# pass the folder name - INSTALL
+cd /opt/gopath/src/chaincodedev
+
+########################### peer commands ####################
+# INSTALL
+peer chaincode install -p  chaincodedev/chaincode/chaincode-testing/02_composite_asset/ -n batch_chain -v 0
+
+# INSTANTIATE
+peer chaincode instantiate -n batch_chain -v 0 -c '{"Args":[]}' -C myc
+
+# INVOKE
+peer chaincode invoke -n batch_chain -c '{"Args":["createBatch","{\"batch_id\":\"100\",\"batch_creation_date\":\"200\",\"batch_owner\":\"sunil\"}"]}' -C myc
+
+# QUERY
+
+peer chaincode query -n batch_chain -c '{"Args":["getBatchDetails"]}' -C myc
