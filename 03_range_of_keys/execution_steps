@@ -1,0 +1,34 @@
+Copy the chaincode files under
+/opt/go/src/github.com/hyperledger/fabric/fabric-samples/chaincode/chaincode-testing/02_composite_asset/
+
+
+cd /opt/go/src/github.com/hyperledger/fabric/fabric-samples/chaincode-docker-devmode
+
+In terminal 1 ,
+docker-compose -f docker-compose-simple.yaml up
+
+
+In terminal 2,
+docker exec -it chaincode bash
+
+CORE_PEER_ADDRESS=peer:7052
+CORE_CHAINCODE_ID_NAME=range:0 ./range
+
+
+In terminal 3,
+docker exec -it cli bash
+
+########################### peer commands ####################
+
+# pass the folder name - INSTALL
+cd /opt/gopath/src/chaincodedev
+peer chaincode install -p  chaincodedev/chaincode/chaincode-testing/03_range_of_keys_chaincode/ -n range -v 0
+
+
+# INSTANTIATE
+peer chaincode instantiate -n range -v 0 -c '{"Args":[]}' -C myc
+
+# INVOKE
+peer chaincode invoke -n range -c '{"Args":["set","1","sunil"]}' -C myc
+
+peer chaincode query -n range -c '{"Args":["get","1","2"]}' -C myc
